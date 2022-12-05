@@ -491,8 +491,8 @@
           "recipient": "andrea.libertino@cimafoundation.org",
           "smtp_server": "smtp.gmail.com",
           "smtp_port":  587,
-          "user": "floodproofs.monitoring@gmail.com",
-          "pwd": "floodproofs4flood",
+          "user": "",
+          "pwd": "",
           "subject": "Flood-PROOFS Africa: Recap Runs and Downloads",
           "other_infos": "For the complete operational report visit: https://docs.google.com/spreadsheets/d/19xmOrr6dgN3UZH9MZYBPMxmJ_JmIwUgzLE2egDgxOKw/edit?usp=sharing"
         }
