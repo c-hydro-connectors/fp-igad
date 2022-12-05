@@ -1,0 +1,51 @@
+{
+  "algorithm": {
+    "flags":{
+      "clear_ancillary_data": false,
+      "recompute_domains": false
+    },
+    "general": {
+      "title": "Bulletin Hydro FP",
+      "web-site": "",
+      "source": "Python library developed by CIMA Research Foundation",
+      "history": "1.0.0 [20221121]",
+      "project-info": "bulletin",
+      "algorithm": "Postprocessing tool developed by CIMA Research Foundation"
+    },
+    "template": {
+      "hmc_output_sub_path_time": "%Y/%m/%d/%H/",
+      "ancillary_sub_path_time": "%Y/%m/%d/",
+      "ancillary_datetime": "%Y%m%d%H%M",
+      "outcome_sub_path_time": "%Y/%m/%d/",
+      "outcome_datetime": "%Y%m%d%H%M"
+    }
+  },
+  "data": {
+    "static": {
+      "discharge_threshold": "/home/fp/data/fp_igad/data/data_static/IGAD_REGION/hazard/flood_tresholds/{domain}/Q_1p25.tif"
+    },
+    "dynamic": {
+      "fp": {
+        "forecast_length_h": 120,
+        "static_data_folder": "/home/fp/data/fp_igad/data/data_static/{domain}/gridded/",
+        "results_folder": "/home/fp/data/fp_igad/archive/nwp_gfs-det/{domain}/{hmc_output_sub_path_time}/outcome/gridded/deterministic/",
+        "domains": ["IGAD_D1", "IGAD_D2", "IGAD_D3", "IGAD_D4", "IGAD_D5", "IGAD_D6", "IGAD_D7", "IGAD_D8", "IGAD_D9", "IGAD_D10", "IGAD_D11", "IGAD_D12", "IGAD_D14", "IGAD_D15"]
+      },
+      "ancillary": {
+        "file_name_max": "max_fc_{domain}_{ancillary_datetime}.tif",
+        "folder": "/home/fp/data/fp_igad/run/fp_impact_forecast/{ancillary_sub_path_time}"
+      },
+      "thresholds": {
+        "area_km2": 1000,
+        "discharge_min": 10
+      },
+      "outcome": {
+        "lock_folder": "/home/fp/data/fp_igad/lock/prob/{domain}/"
+    }
+    },
+    "log": {
+      "filename": "fp_impact_based_forecast.txt",
+      "folder": "/home/fp/data/fp_igad/log/postprocessing/"
+    }
+  }
+}
