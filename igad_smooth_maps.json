@@ -1,0 +1,56 @@
+{
+  "algorithm": {
+    "general": {
+      "title": "Bulletin Hydro FP",
+      "web-site": "",
+      "source": "Python library developed by CIMA Research Foundation",
+      "history": "1.0.0 [20221121]",
+      "project-info": "bulletin",
+      "algorithm": "Postprocessing tool developed by CIMA Research Foundation"
+    },
+    "template": {
+      "hmc_output_sub_path_time": "%Y/%m/%d/%H/",
+      "input_sub_path_time": "%Y/%m/%d/",
+      "input_datetime": "%Y%m%d%H%M",
+      "outcome_sub_path_time": "%Y/%m/%d/",
+      "outcome_datetime": "%Y%m%d%H%M"
+    }
+  },
+  "data": {
+    "static": {
+      "domain_mask": "/home/andrea/Desktop/mask/igad_mask.tif"
+    },
+    "dynamic": {
+      "maps": {
+        "soil_moisture": {
+          "file": {
+            "input_folder": "/home/andrea/Desktop/",
+            "input_filename": "IGAD_SM_{input_datetime}.tif",
+            "output_folder": "/home/andrea/Desktop/outcome/",
+            "output_filename": "IGAD_SM_{outcome_datetime}.tif"
+          },
+          "params": {
+            "sigma": 10,
+            "truncate": 4
+          }
+        },
+        "evapotraspiration": {
+          "file": {
+            "input_folder": "/home/andrea/Desktop/",
+            "input_filename": "IGAD_ETCum_{input_datetime}.tif",
+            "output_folder": "/home/andrea/Desktop/outcome/",
+            "output_filename": "IGAD_ETCum_{outcome_datetime}.tif"
+          },
+          "params": {
+            "sigma": 10,
+            "truncate": 4
+          }
+        }
+      }
+    },
+    "log": {
+      "filename": "fp_impact_based_forecast.txt",
+      "folder": "/home/andrea/Desktop/log/postprocessing/"
+    }
+  }
+}

@@ -1,10 +1,10 @@
 import pandas as pd
 
 """
-HAT Analysis Tool - Run recap and warning summary
+HAT Analysis Tool - Run recap and warning summary lite
 
-__date__ = '20210511'
-__version__ = '1.0.0'
+__date__ = '20221005'
+__version__ = '1.2.0'
 __author__ =
         'Andrea Libertino (andrea.libertino@cimafoundation.org',
         'Fabio Delogu (fabio.delogu@cimafoundation.org',
@@ -15,6 +15,7 @@ General command line:
 python3 hyde_downloader_nwp_gfs_ftp.py -settings_file configuration.json -time YYYY-MM-DD HH:MM
 
 Version(s):
+20221005 (1.2.0) --> Add support for conditional probabilistic runs
 20210602 (1.1.0) --> Add support to netrc credential file
 20210511 (1.0.0) --> Beta release for floodProofs-HSNFEWS Guyana
 """
@@ -37,7 +38,7 @@ import matplotlib.pyplot as plt
 import xlsxwriter
 from email.message import EmailMessage
 import netrc
-
+import pytz
 # -------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------
@@ -104,21 +105,41 @@ def main():
         file_template = os.path.join(data_settings["data"]["dynamic"]["models"][model]["folder"],
                                      data_settings["data"]["dynamic"]["models"][model]["file_name"])
         if data_settings["data"]["dynamic"]["models"][model]["type"] == "realtime":
-            models_check[data_settings["data"]["dynamic"]["models"][model]["full_name"]] = check_last_realtime_model(
-                file_template, empty_template)
+            models_check[data_settings["data"]["dynamic"]["models"][model]["full_name"]] = check_last_realtime_model(file_template, empty_template)
         elif data_settings["data"]["dynamic"]["models"][model]["type"] == "forecast":
             filled_template = fill_time_template(empty_template, time_run)
             file_now = file_template.format(**filled_template)
-            models_check[data_settings["data"]["dynamic"]["models"][model]["full_name"]] = check_forecast_availability(
-                file_now)
+            try:
+                eta = data_settings["data"]["dynamic"]["models"][model]["eta"]
+                eta_value = datetime(time_run.year, time_run.month, time_run.day, int(eta.split(":")[0]), int(eta.split(":")[1]))
+            except:
+                eta_value = None
+
+            models_check[data_settings["data"]["dynamic"]["models"][model]["full_name"]] = check_forecast_availability(file_now, eta_value)
 
     logging.info(" --> Input data analysis... DONE ")
     # -------------------------------------------------------------------------------------
 
     # -------------------------------------------------------------------------------------
     # Check hydro model runs
-    logging.info(" --> Model run analysis... ")
+    # Check the presence of conditioned probabilistic runs
+    logging.info(" --> Check presence of conditional probabilistic runs to monitor... ")
+    list_of_conditional_runs = [i for i in data_settings["data"]["dynamic"]["runs"].keys() if data_settings["data"]["dynamic"]["runs"][i]["actions"]["check"] and
+                       data_settings["data"]["dynamic"]["runs"][i]["type"] == "probabilistic_conditional"]
+    list_of_full_name_conditional_runs = [data_settings["data"]["dynamic"]["runs"][i]["full_name"] for i in
+                                 data_settings["data"]["dynamic"]["runs"].keys() if data_settings["data"]["dynamic"]["runs"][i]["actions"]["check"] and
+                                 data_settings["data"]["dynamic"]["runs"][i]["type"] == "probabilistic_conditional"]
 
+    for run, run_full_name in zip(list_of_conditional_runs, list_of_full_name_conditional_runs):
+        condition_active_file = data_settings["data"]["dynamic"]["runs"][run]["condition_active_file"].format(**filled_template)
+        condition_notactive_file = data_settings["data"]["dynamic"]["runs"][run]["condition_notactive_file"].format(**filled_template)
+        if check_conditional_probabilistic_runs(condition_active_file, condition_notactive_file) == "not active":
+            data_settings["data"]["dynamic"]["runs"][run]["actions"]["check"] = False
+        elif check_conditional_probabilistic_runs(condition_active_file, condition_notactive_file) == "unknown":
+            logging.warning("WARNING! Status of conditional probabilistic run for domain " + run + " is not valid! No proper lock file found!")
+    logging.info(" --> Check presence of conditional probabilistic runs to monitor... DONE!")
+
+    # Check status of hydro models run
     list_runs_check = [i for i in data_settings["data"]["dynamic"]["runs"].keys() if
                        data_settings["data"]["dynamic"]["runs"][i]["actions"]["check"]]
     list_full_name_runs_check = [data_settings["data"]["dynamic"]["runs"][i]["full_name"] for i in data_settings["data"]["dynamic"]["runs"].keys() if
@@ -127,13 +148,23 @@ def main():
 
     filled_template = fill_time_template(empty_template, time_run)
 
-    runs_check = pd.DataFrame(index=list_full_name_runs_check, columns=['Run check','Time start','Time end'])
+    runs_check = pd.DataFrame(index=list_full_name_runs_check, columns=['Run status', 'Time start','Time end','Expected end','Run check'])
+
     for run, run_full_name in zip(list_runs_check, list_full_name_runs_check):
         logging.info(" ----> Check run: " + run_full_name)
         filled_template["run_name"] = run
         start_lock_file = data_settings["data"]["dynamic"]["runs"][run]["start_lock_file"].format(**filled_template)
         end_lock_file = data_settings["data"]["dynamic"]["runs"][run]["end_lock_file"].format(**filled_template)
-        runs_check.loc[run_full_name]['Run check'], runs_check.loc[run_full_name]['Time start'], runs_check.loc[run_full_name]['Time end'] = check_run_state(start_lock_file, end_lock_file)
+        runs_check.loc[run_full_name]['Run status'], runs_check.loc[run_full_name]['Time start'], runs_check.loc[run_full_name]['Time end'], time_end_value = check_run_state(start_lock_file, end_lock_file)
+        try:
+            eta = data_settings["data"]["dynamic"]["runs"][run]["eta"]
+            eta_value = datetime(time_run.year, time_run.month, time_run.day, int(eta.split(":")[0]), int(eta.split(":")[1]), tzinfo=pytz.UTC)
+            runs_check.loc[run_full_name]['Expected end'] = eta_value.strftime("%Y-%m-%d %H:%M")
+        except:
+            eta_value = None
+            runs_check.loc[run_full_name]['Expected end'] = 'UNKNOWN'
+
+        runs_check.loc[run_full_name]['Run check'] = check_run_condition(time_end_value, eta_value)
 
     logging.info(" --> Model run analysis... DONE")
     # -------------------------------------------------------------------------------------
@@ -172,8 +203,8 @@ def main():
                         **filled_template)
                     if os.path.isfile(run_results):
                         results = read_file_json(run_results)
-                        yellow_th = float(results["section_discharge_thr_alarm"])
-                        orange_th = float(results["section_discharge_thr_alert"])
+                        yellow_th = float(results["section_discharge_thr_alert"])
+                        orange_th = float(results["section_discharge_thr_alarm"])
                         try:
                             red_th = float(results["section_discharge_thr_emergency"])
                         except:
@@ -181,7 +212,7 @@ def main():
                         if df_threshold.loc[basin + ' ' + section]["yellow_th"] is np.nan:
                             df_threshold.loc[basin + ' ' + section]["yellow_th"] = yellow_th
                             df_threshold.loc[basin + ' ' + section]["orange_th"] = orange_th
-                            df_threshold.loc[basin + ' ' + section]["orange_th"] = red_th
+                            df_threshold.loc[basin + ' ' + section]["red_th"] = red_th
                         if results['run_mode'] == 'deterministic':
                             if not df_made:
                                 time_index = [datetime.strptime(i, "%Y-%m-%d %H:%M") for i in
@@ -197,8 +228,7 @@ def main():
                                 df_out = pd.DataFrame(index=time_index, columns=results["run_var"].split(','))
                                 df_made = True
                             for ens in results["run_var"].split(','):
-                                df_out[ens] = [float(i) for i in
-                                               results['time_series_discharge_simulated_' + ens].split(',')]
+                                df_out[ens] = [float(i) for i in results['time_series_discharge_simulated_' + ens].split(',')]
                             max_value = max(df_out[time_min:].values.flatten())
 
                         assign_warning(max_value, red_th, orange_th, yellow_th, basin + ' ' + section, run, df_values, df_level)
@@ -313,7 +343,7 @@ def apply_color(x):
     if x == 'y':
         return 'background-color: yellow'
     elif x == 'tab:orange':
-        return 'background-color: #FFA500'	
+        return 'background-color: #FFA500'
     elif x=='r':
         return 'background-color: red'
     else:
@@ -324,16 +354,19 @@ def apply_color(x):
 # -------------------------------------------------------------------------------------
 # Function for assigning warning levels according to thresholds
 def assign_warning(max_value, red_th, orange_th, yellow_th, section, run, df_values, df_level):
-    if max_value >= red_th:
+    if max_value == 0:
+        df_values.loc[section, run] = np.nan
+        df_level.loc[section, run] = 'g'
+    elif max_value >= red_th:
         df_values.loc[section, run] = max_value
         df_level.loc[section, run] = 'r'
-    elif max_value >= orange_th:
+    elif max_value > orange_th:
         df_values.loc[section, run] = max_value
         df_level.loc[section, run] = 'tab:orange'
-    elif max_value >= yellow_th:
+    elif max_value > yellow_th:
         df_values.loc[section, run] = max_value
         df_level.loc[section, run] = 'y'
-    elif max_value >= 0:
+    elif max_value > 0:
         df_values.loc[section, run] = np.nan
         df_level.loc[section, run] = 'g'
     else:
@@ -386,7 +419,7 @@ def write_report(out_folder, out_name, models_check, runs_check, op_chain_name, 
         report_file.write(' \n')
         report_file.write(' --> Operational chains check \n')
         for key in runs_check.index:
-            report_file.write(key + ': ' + runs_check.loc[key]["Run check"] + "\n")
+            report_file.write(key + ': ' + runs_check.loc[key]["Run status"] + " - " + runs_check.loc[key]["Run check"] + "\n")
         report_file.write('============================================================')
 
 # -------------------------------------------------------------------------------------
@@ -399,11 +432,46 @@ def public_online_gdrive(api_key, sheet_name, models_check, runs_check, time_run
     sh = gc.open(sheet_name)
 
     wks = sh[0]
-    wks.cell('B1').value = time_run.strftime("%Y-%m-%d %H:%M")
-    wks.cell('D1').value = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
-    wks.set_dataframe(pd.DataFrame.from_dict(models_check, orient='index'), (3, 1), copy_index=True, copy_head=False)
-    wks.set_dataframe(runs_check, (5 + len(models_check), 1), copy_index=True, copy_head=False)
+    wks.clear()
 
+    # Header
+    wks.cell('A1').set_text_format('bold', True).value = "RUN TIME (UTC)"
+    wks.cell('B1').value = time_run.strftime("%Y-%m-%d %H:%M")
+    wks.cell('C1').set_text_format('bold', True).value = "CHECK TIME (UTC)"
+    wks.cell('D1').value = datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+    last_header_row = 1
+
+    # Meteo models
+    wks.cell('A' + str(last_header_row+2)).set_text_format('bold', True).value = "METEO MODELS"
+    wks.set_dataframe(pd.DataFrame.from_dict(models_check, orient='index'), (last_header_row + 3, 1), copy_index=True, copy_head=False)
+    last_meteo_row = last_header_row + 1 + len(models_check)
+
+    wks.add_conditional_formatting('B' + str(last_header_row + 3), 'B' + str(last_header_row + 3 + len(models_check) -1),
+                                   "TEXT_CONTAINS", format={'backgroundColor': {'green': 0.1, 'red': 0.95, 'blue': 0.05}},
+                                   condition_values=["OK"])
+    wks.add_conditional_formatting('B' + str(last_header_row + 3), 'B' + str(last_header_row + 3 + len(models_check) -1),
+                                   "TEXT_NOT_CONTAINS", format={'backgroundColor': {'green': 0.75, 'red': 0.1, 'blue': 0.1}},
+                                   condition_values=["WARNING"])
+
+    # Hydro models
+    wks.cell('A' + str(last_meteo_row + 3)).set_text_format('bold', True).value = "HYDROLOGICAL MODELS"
+    wks.cell('A' + str(last_meteo_row + 4)).set_text_format('bold', True).set_text_format('italic', True).value = "Run name"
+    wks.cell('B' + str(last_meteo_row + 4)).set_text_format('bold', True).set_text_format('italic', True).value = "Run status"
+    wks.cell('C' + str(last_meteo_row + 4)).set_text_format('bold', True).set_text_format('italic', True).value = "Run start (UTC)"
+    wks.cell('D' + str(last_meteo_row + 4)).set_text_format('bold', True).set_text_format('italic', True).value = "Run end (UTC)"
+    wks.cell('E' + str(last_meteo_row + 4)).set_text_format('bold', True).set_text_format('italic', True).value = "Expected end (UTC)"
+    wks.cell('F' + str(last_meteo_row + 4)).set_text_format('bold', True).set_text_format('italic', True).value = "Run check"
+    wks.set_dataframe(runs_check, (last_meteo_row + 5, 1), copy_index=True, copy_head=False)
+
+    wks.add_conditional_formatting('F' + str(last_meteo_row + 5), 'F' + str(last_meteo_row + 5 + len(runs_check)),
+                                   "TEXT_EQ", format={'backgroundColor': {'green': 0.75, 'red': 0.1, 'blue': 0.1}},
+                                   condition_values=["OK"])
+    wks.add_conditional_formatting('F' + str(last_meteo_row + 5), 'F' + str(last_meteo_row + 5 + len(runs_check)),
+                                   "TEXT_EQ", format={'backgroundColor': {'green': 0.7, 'red': 0.7, 'blue': 0.7}},
+                                   condition_values=["UNKNOWN"])
+    wks.add_conditional_formatting('F' + str(last_meteo_row + 5), 'F' + str(last_meteo_row + 5 + len(runs_check)),
+                                   "TEXT_EQ", format={'backgroundColor': {'green': 0.1, 'red': 0.95, 'blue': 0.05}},
+                                   condition_values=["WARNING"])
 # -------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------
@@ -412,21 +480,59 @@ def check_run_state(start_lock_file, end_lock_file):
     if os.path.isfile(start_lock_file) and os.path.isfile(end_lock_file):
         out_string = "Has run"
         time_start = datetime.utcfromtimestamp(os.stat(start_lock_file).st_mtime).strftime("%Y-%m-%d %H:%M")
-        time_end = datetime.utcfromtimestamp(os.stat(end_lock_file).st_mtime).strftime("%Y-%m-%d %H:%M")
+        time_end_value = datetime.utcfromtimestamp(os.stat(end_lock_file).st_mtime)
+        time_end = time_end_value.strftime("%Y-%m-%d %H:%M")
     elif os.path.isfile(start_lock_file) and not os.path.isfile(end_lock_file):
         out_string = "Is running"
         time_start = datetime.utcfromtimestamp(os.stat(start_lock_file).st_mtime).strftime("%Y-%m-%d %H:%M")
         time_end = " "
+        time_end_value = None
     elif not os.path.isfile(start_lock_file) and not os.path.isfile(end_lock_file):
         out_string = "Has not run"
         time_start = " "
         time_end = " "
+        time_end_value = None
     else:
-        out_string = "Unkown condition"
+        out_string = "Unknown condition"
         time_start = " "
         time_end = " "
-    return out_string, time_start, time_end
+        time_end_value = None
 
+    return out_string, time_start, time_end, time_end_value
+# -------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------
+def check_run_condition(time_end_value, eta_value):
+    time_now_utc = datetime.now(timezone.utc)
+
+    if time_end_value is not None:
+        status = "OK"
+
+    elif eta_value is None:
+        status = "UNKNOWN"
+
+    elif eta_value < time_now_utc:
+        status = "WARNING"
+
+    else:
+        status = "OK"
+
+    return status
+
+# -------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------
+# Function to check the contitional probabilistic runs
+def check_conditional_probabilistic_runs(active_lock, notactive_lock):
+    if os.path.isfile(active_lock) and not os.path.isfile(notactive_lock):
+        status = "active"
+    elif os.path.isfile(notactive_lock) and not os.path.isfile(active_lock):
+        status = "not active"
+    else:
+        status = "unknown"
+    return status
+
+# -------------------------------------------------------------------------------------
 # -------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------
@@ -442,7 +548,7 @@ def fill_time_template(empty_template, time_now):
 # -------------------------------------------------------------------------------------
 # Function to check the time-step of the last real-time meteo model
 def check_last_realtime_model(file_template, empty_template, length_check=24, freq_check="H"):
-    time_to_check = pd.date_range(datetime.now(), periods=length_check, freq="-1" + freq_check)
+    time_to_check = pd.date_range(datetime.now(timezone.utc), periods=length_check, freq="-1" + freq_check)
     last_available = None
     for time_check in time_to_check:
         filled_template = fill_time_template(empty_template, time_check)
@@ -452,7 +558,7 @@ def check_last_realtime_model(file_template, empty_template, length_check=24, fr
             break
 
     if not last_available is None:
-        out_string = "Last available data: " + last_available.strftime("%Y-%m-%d %H:00")
+        out_string = "OK! Last available data: " + last_available.strftime("%Y-%m-%d %H:00")
     else:
         out_string = "WARNING! Last available data more than " + str(length_check) + " " + freq_check + " ago"
 
@@ -462,11 +568,18 @@ def check_last_realtime_model(file_template, empty_template, length_check=24, fr
 
 # -------------------------------------------------------------------------------------
 # Function to check the availability of a forecast file
-def check_forecast_availability(file_now):
+def check_forecast_availability(file_now, eta_value):
+    time_now_utc = datetime.now(timezone.utc)
+
     if os.path.isfile(file_now):
-        out_string = "Is available"
+        out_string = "OK! Model is available"
     else:
-        out_string = "Is not available"
+        if eta_value is None:
+            out_string = "WARNING! Model is not available"
+        elif eta_value < time_now_utc:
+            out_string = "WARNING! Model is not available"
+        else:
+            out_string = "OK! Model is not available yet"
 
     return out_string
 
