@@ -1,0 +1,57 @@
+{
+  "algorithm": {
+    "flags":{
+      "extract_continuum_results": false,
+      "calculate_quantile_maps": false,
+      "assign_shapefile_treshold": true,
+      "force_positive_q": true
+    },
+    "general": {
+      "title": "Calculate tresholds",
+      "web-site": "",
+      "source": "Python library developed by CIMA Research Foundation",
+      "history": "1.0.0 [20221121]",
+      "project-info": "bulletin",
+      "algorithm": "Postprocessing tool developed by CIMA Research Foundation"
+    },
+    "template": {
+      "hmc_output_sub_path_time": "%Y/%m/%d/%H/",
+      "ancillary_sub_path_time": "%Y/%m/%d/",
+      "ancillary_datetime": "%Y%m%d%H%M",
+      "outcome_sub_path_time": "%Y/%m/%d/",
+      "outcome_datetime": "%Y%m%d%H%M"
+    }
+  },
+  "data": {
+    "domain": "IGAD_D10",
+    "static": {
+      "choice": "/home/andrea/CIMA/PROJECT_IGAD2/fp_revamp/static_data_2_0/IGAD_D{domain}/gridded/IGAD_D{domain}.choice.txt",
+      "shapefile": ""
+    },
+    "dynamic": {
+      "fp": {
+        "hmc_output_folder": "/home/fp/data/fp_igad/archive/nwp_gfs-det/{domain}/{hmc_output_sub_path_time}/",
+        "hmc_output_filename": "hmc.output-grid.{datetime_file}.nc",
+        "start_date": "2002-01-01 00:00",
+        "end_date": "2021-12-31 23:00"
+        },
+      "ancillary": {
+        "folder": " /home/fp/data/fp_igad/run/fp_impact_forecast/{ancillary_sub_path_time}",
+        "annual_max_filename": "max_fc_{domain}.nc",
+        "annual_max_varname": "__xarray_dataarray_variable__"
+      },
+      "outcome": {
+        "quantile_map_return_period": [1.25,10,5],
+        "quantile_map_folder": "__xarray_dataarray_variable__",
+        "quantile_map_filename": "Q_{T}.tif",
+        "shapefile_th_return_period": [2, 5, 20],
+        "shapefile_folder": "",
+        "shapefile_filename": ""
+    }
+    },
+    "log": {
+      "filename": "fp_impact_based_forecast.txt",
+      "folder": "/home/fp/data/fp_igad/log/postprocessing/"
+    }
+  }
+}

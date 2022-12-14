@@ -49,7 +49,18 @@
           },
           "folder": "/DATA/fp/fp_igad/data/data_dynamic/outcome/nwp/gfs025/domain/{sub_path_date}",
           "file_name": "igad_gfs.t{file_gfs_datetime}_other_variables.nc",
-          "full_name": "GFS forecast"
+          "full_name": "GFS forecast",
+          "eta": "6:00"
+        },
+        "nwp_gefs": {
+          "type": "forecast",
+          "actions": {
+            "check": true
+          },
+          "folder": "/DATA/fp/fp_igad/data/data_dynamic/outcome/nwp/gefs025/domain/{sub_path_date}",
+          "file_name": "igad_gep030.t{file_gfs_datetime}_other_variables.nc",
+          "full_name": "GEFS forecast ensembles",
+          "eta": "7:00"
         }
       },
       "runs": {
@@ -59,10 +70,22 @@
             "check": false,
             "warning": true
           },
-          "full_name": "Deterministic IGAD",
+          "full_name": "Deterministic GFS IGAD",
           "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/IGAD_D1/hmc_{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/IGAD_D1/hmc_{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "/DATA/fp/fp_igad/storage/dewetra/data/data_dynamic/{run_name}/{sub_path_datetime}/outcome/collections/deterministic",
+          "collection_name": "hydrograph_{section_name}_{section_basin}_{file_long_datetime}.json"
+        },
+        "nwp_gefs-prob": {
+          "type": "probabilistic",
+          "actions": {
+            "check": false,
+            "warning": true
+          },
+          "full_name": "Probabilistic GEFS IGAD",
+          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/IGAD_D1/hmc_{run_name}_lock_{file_lock_datetime}_START.txt",
+          "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/IGAD_D1/hmc_{run_name}_lock_{file_lock_datetime}_END.txt",
+          "collection_path": "/DATA/fp/fp_igad/storage/dewetra/data/data_dynamic/{run_name}/{sub_path_datetime}/outcome/collections/probabilistic_ensemble",
           "collection_name": "hydrograph_{section_name}_{section_basin}_{file_long_datetime}.json"
         },
         "IGAD_D1/hmc_nwp_gfs-det": {
@@ -75,7 +98,23 @@
           "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
+        },
+        "IGAD_D1/hmc_nwp_gefs-prob": {
+          "type": "probabilistic_conditional",
+          "actions": {
+            "check": true,
+            "warning": false
+          },
+          "full_name": "IGAD_D1 - GEFS Probabilistic",
+          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
+          "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
+          "condition_active_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D1/hmc_probabilistic_{file_long_datetime}_ACTIVE.txt",
+          "condition_notactive_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D1/hmc_probabilistic_{file_long_datetime}_NOT_ACTIVE.txt",
+          "collection_path": "",
+          "collection_name": "",
+          "eta": "9:15"
         },
         "IGAD_D1/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -87,7 +126,8 @@
           "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         },
         "IGAD_D2/hmc_nwp_gfs-det": {
           "type": "deterministic",
@@ -99,7 +139,23 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
+        },
+        "IGAD_D2/hmc_nwp_gefs-prob": {
+          "type": "probabilistic_conditional",
+          "actions": {
+            "check": true,
+            "warning": false
+          },
+          "full_name": "IGAD_D2 - GEFS Probabilistic",
+          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
+          "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
+          "condition_active_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D2/hmc_probabilistic_{file_long_datetime}_ACTIVE.txt",
+          "condition_notactive_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D2/hmc_probabilistic_{file_long_datetime}_NOT_ACTIVE.txt",
+          "collection_path": "",
+          "collection_name": "",
+          "eta": "9:15"
         },
         "IGAD_D2/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -111,7 +167,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         },
         "IGAD_D3/hmc_nwp_gfs-det": {
           "type": "deterministic",
@@ -123,7 +180,23 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
+        },
+        "IGAD_D3/hmc_nwp_gefs-prob": {
+          "type": "probabilistic_conditional",
+          "actions": {
+            "check": true,
+            "warning": false
+          },
+          "full_name": "IGAD_D3 - GEFS Probabilistic",
+          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
+          "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
+          "condition_active_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D3/hmc_probabilistic_{file_long_datetime}_ACTIVE.txt",
+          "condition_notactive_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D3/hmc_probabilistic_{file_long_datetime}_NOT_ACTIVE.txt",
+          "collection_path": "",
+          "collection_name": "",
+          "eta": "9:15"
         },
         "IGAD_D3/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -135,7 +208,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         },
         "IGAD_D4/hmc_nwp_gfs-det": {
           "type": "deterministic",
@@ -147,7 +221,23 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
+        },
+        "IGAD_D4/hmc_nwp_gefs-prob": {
+          "type": "probabilistic_conditional",
+          "actions": {
+            "check": true,
+            "warning": false
+          },
+          "full_name": "IGAD_D4 - GEFS Probabilistic",
+          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
+          "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
+          "condition_active_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D4/hmc_probabilistic_{file_long_datetime}_ACTIVE.txt",
+          "condition_notactive_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D4/hmc_probabilistic_{file_long_datetime}_NOT_ACTIVE.txt",
+          "collection_path": "",
+          "collection_name": "",
+          "eta": "9:15"
         },
         "IGAD_D4/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -159,7 +249,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         },
         "IGAD_D5/hmc_nwp_gfs-det": {
           "type": "deterministic",
@@ -171,7 +262,23 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
+        },
+        "IGAD_D5/hmc_nwp_gefs-prob": {
+          "type": "probabilistic_conditional",
+          "actions": {
+            "check": true,
+            "warning": false
+          },
+          "full_name": "IGAD_D5 - GEFS Probabilistic",
+          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
+          "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
+          "condition_active_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D5/hmc_probabilistic_{file_long_datetime}_ACTIVE.txt",
+          "condition_notactive_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D5/hmc_probabilistic_{file_long_datetime}_NOT_ACTIVE.txt",
+          "collection_path": "",
+          "collection_name": "",
+          "eta": "9:15"
         },
         "IGAD_D5/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -183,7 +290,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         },
          "IGAD_D6/hmc_nwp_gfs-det": {
           "type": "deterministic",
@@ -195,7 +303,23 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
+        },
+        "IGAD_D6/hmc_nwp_gefs-prob": {
+          "type": "probabilistic_conditional",
+          "actions": {
+            "check": true,
+            "warning": false
+          },
+          "full_name": "IGAD_D6 - GEFS Probabilistic",
+          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
+          "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
+          "condition_active_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D6/hmc_probabilistic_{file_long_datetime}_ACTIVE.txt",
+          "condition_notactive_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D6/hmc_probabilistic_{file_long_datetime}_NOT_ACTIVE.txt",
+          "collection_path": "",
+          "collection_name": "",
+          "eta": "9:15"
         },
         "IGAD_D6/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -207,7 +331,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         },
         "IGAD_D7/hmc_nwp_gfs-det": {
           "type": "deterministic",
@@ -219,7 +344,23 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
+        },
+        "IGAD_D7/hmc_nwp_gefs-prob": {
+          "type": "probabilistic_conditional",
+          "actions": {
+            "check": true,
+            "warning": false
+          },
+          "full_name": "IGAD_D7 - GEFS Probabilistic",
+          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
+          "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
+          "condition_active_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D7/hmc_probabilistic_{file_long_datetime}_ACTIVE.txt",
+          "condition_notactive_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D7/hmc_probabilistic_{file_long_datetime}_NOT_ACTIVE.txt",
+          "collection_path": "",
+          "collection_name": "",
+          "eta": "9:15"
         },
         "IGAD_D7/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -231,7 +372,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         },
         "IGAD_D8/hmc_nwp_gfs-det": {
           "type": "deterministic",
@@ -243,7 +385,23 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
+        },
+        "IGAD_D8/hmc_nwp_gefs-prob": {
+          "type": "probabilistic_conditional",
+          "actions": {
+            "check": true,
+            "warning": false
+          },
+          "full_name": "IGAD_D8 - GEFS Probabilistic",
+          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
+          "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
+          "condition_active_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D8/hmc_probabilistic_{file_long_datetime}_ACTIVE.txt",
+          "condition_notactive_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D8/hmc_probabilistic_{file_long_datetime}_NOT_ACTIVE.txt",
+          "collection_path": "",
+          "collection_name": "",
+          "eta": "9:15"
         },
         "IGAD_D8/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -255,7 +413,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         },
         "IGAD_D9/hmc_nwp_gfs-det": {
           "type": "deterministic",
@@ -267,7 +426,23 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
+        },
+        "IGAD_D9/hmc_nwp_gefs-prob": {
+          "type": "probabilistic_conditional",
+          "actions": {
+            "check": true,
+            "warning": false
+          },
+          "full_name": "IGAD_D9 - GEFS Probabilistic",
+          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
+          "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
+          "condition_active_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D9/hmc_probabilistic_{file_long_datetime}_ACTIVE.txt",
+          "condition_notactive_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D9/hmc_probabilistic_{file_long_datetime}_NOT_ACTIVE.txt",
+          "collection_path": "",
+          "collection_name": "",
+          "eta": "9:15"
         },
         "IGAD_D9/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -279,7 +454,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         },
         "IGAD_D10/hmc_nwp_gfs-det": {
           "type": "deterministic",
@@ -291,7 +467,23 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
+        },
+        "IGAD_D10/hmc_nwp_gefs-prob": {
+          "type": "probabilistic_conditional",
+          "actions": {
+            "check": true,
+            "warning": false
+          },
+          "full_name": "IGAD_D10 - GEFS Probabilistic",
+          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
+          "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
+          "condition_active_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D10/hmc_probabilistic_{file_long_datetime}_ACTIVE.txt",
+          "condition_notactive_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D10/hmc_probabilistic_{file_long_datetime}_NOT_ACTIVE.txt",
+          "collection_path": "",
+          "collection_name": "",
+          "eta": "9:15"
         },
         "IGAD_D10/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -303,7 +495,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         },
         "IGAD_D11/hmc_nwp_gfs-det": {
           "type": "deterministic",
@@ -315,7 +508,23 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
+        },
+        "IGAD_D11/hmc_nwp_gefs-prob": {
+          "type": "probabilistic_conditional",
+          "actions": {
+            "check": true,
+            "warning": false
+          },
+          "full_name": "IGAD_D11 - GEFS Probabilistic",
+          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
+          "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
+          "condition_active_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D11/hmc_probabilistic_{file_long_datetime}_ACTIVE.txt",
+          "condition_notactive_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D11/hmc_probabilistic_{file_long_datetime}_NOT_ACTIVE.txt",
+          "collection_path": "",
+          "collection_name": "",
+          "eta": "9:15"
         },
         "IGAD_D11/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -327,7 +536,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         },
         "IGAD_D12/hmc_nwp_gfs-det": {
           "type": "deterministic",
@@ -339,7 +549,23 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
+        },
+        "IGAD_D12/hmc_nwp_gefs-prob": {
+          "type": "probabilistic_conditional",
+          "actions": {
+            "check": true,
+            "warning": false
+          },
+          "full_name": "IGAD_D12 - GEFS Probabilistic",
+          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
+          "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
+          "condition_active_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D12/hmc_probabilistic_{file_long_datetime}_ACTIVE.txt",
+          "condition_notactive_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D12/hmc_probabilistic_{file_long_datetime}_NOT_ACTIVE.txt",
+          "collection_path": "",
+          "collection_name": "",
+          "eta": "9:15"
         },
         "IGAD_D12/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -351,7 +577,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         },
        "IGAD_D13a/hmc_nwp_gfs-det": {
           "type": "deterministic",
@@ -363,7 +590,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
         },
         "IGAD_D13a/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -375,9 +603,10 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         },
-               "IGAD_D13b/hmc_nwp_gfs-det": {
+        "IGAD_D13b/hmc_nwp_gfs-det": {
           "type": "deterministic",
           "actions": {
             "check": true,
@@ -387,7 +616,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
         },
         "IGAD_D13b/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -399,9 +629,10 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         },
-               "IGAD_D13c/hmc_nwp_gfs-det": {
+          "IGAD_D13c/hmc_nwp_gfs-det": {
           "type": "deterministic",
           "actions": {
             "check": true,
@@ -411,7 +642,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
         },
         "IGAD_D13c/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -423,7 +655,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
       },
       "IGAD_D14/hmc_nwp_gfs-det": {
           "type": "deterministic",
@@ -435,7 +668,23 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
+        },
+        "IGAD_D14/hmc_nwp_gefs-prob": {
+          "type": "probabilistic_conditional",
+          "actions": {
+            "check": true,
+            "warning": false
+          },
+          "full_name": "IGAD_D14 - GEFS Probabilistic",
+          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
+          "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
+          "condition_active_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D14/hmc_probabilistic_{file_long_datetime}_ACTIVE.txt",
+          "condition_notactive_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D14/hmc_probabilistic_{file_long_datetime}_NOT_ACTIVE.txt",
+          "collection_path": "",
+          "collection_name": "",
+          "eta": "9:15"
         },
         "IGAD_D14/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -447,7 +696,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         },
         "IGAD_D15/hmc_nwp_gfs-det": {
           "type": "deterministic",
@@ -459,7 +709,23 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "7:15"
+        },
+        "IGAD_D15/hmc_nwp_gefs-prob": {
+          "type": "probabilistic_conditional",
+          "actions": {
+            "check": true,
+            "warning": false
+          },
+          "full_name": "IGAD_D15 - GEFS Probabilistic",
+          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
+          "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
+          "condition_active_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D15/hmc_probabilistic_{file_long_datetime}_ACTIVE.txt",
+          "condition_notactive_file": "/DATA/fp/fp_igad/lock/prob/IGAD_D15/hmc_probabilistic_{file_long_datetime}_NOT_ACTIVE.txt",
+          "collection_path": "",
+          "collection_name": "",
+          "eta": "9:15"
         },
         "IGAD_D15/hmc_state_gsmap-obs": {
           "type": "deterministic",
@@ -471,7 +737,8 @@
          "start_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_START.txt",
           "end_lock_file": "/DATA/fp/fp_igad/lock/hmc/{run_name}_lock_{file_lock_datetime}_END.txt",
           "collection_path": "",
-          "collection_name": ""
+          "collection_name": "",
+          "eta": "19:15"
         }
         },
       "outcome": {
@@ -488,13 +755,13 @@
         },
         "email": {
           "sender": "floodproofs.monitoring@gmail.com",
-          "recipient": "andrea.libertino@cimafoundation.org",
+          "recipient": "xxxx,yyyy,zzz",
           "smtp_server": "smtp.gmail.com",
           "smtp_port":  587,
           "user": "",
           "pwd": "",
-          "subject": "Flood-PROOFS Africa: Recap Runs and Downloads",
-          "other_infos": "For the complete operational report visit: https://docs.google.com/spreadsheets/d/19xmOrr6dgN3UZH9MZYBPMxmJ_JmIwUgzLE2egDgxOKw/edit?usp=sharing"
+          "subject": "FloodPROOFS East Africa: Recap Runs and Downloads",
+          "other_infos": "\n See the full forecast on www.mydewetra.world \nFor the complete operational report visit: https://docs.google.com/spreadsheets/d/19xmOrr6dgN3UZH9MZYBPMxmJ_JmIwUgzLE2egDgxOKw/edit?usp=sharing"
         }
       }
     },

@@ -6,7 +6,7 @@ __author__ =
         'Andrea Libertino (andrea.libertino@cimafoundation.org',
 __library__ = 'bulletin'
 General command line:
-### python bulletin_hydro_fp.py -settings_file "settings.json" -time "YYYY-MM-DD HH:MM"
+### python igad_check_probabilistic.py -settings_file "settings.json" -time "YYYY-MM-DD HH:MM"
 Version(s):
 20221121 (1.0.0) --> Beta release
 """
