@@ -1,5 +1,8 @@
 {
   "algorithm": {
+    "flags": {
+      "raise_error_if_no_restart": true
+    },
     "general": {
       "title": "Bulletin Hydro FP",
       "web-site": "",
@@ -10,25 +13,43 @@
     },
     "template": {
       "hmc_output_sub_path_time": "%Y/%m/%d/%H/",
-      "ancillary_sub_path_time": "%Y/%m/%d/",
+      "input_sub_path_time": "%Y/%m/%d/",
       "ancillary_datetime": "%Y%m%d%H%M",
       "outcome_sub_path_time": "%Y/%m/%d/",
-      "outcome_datetime": "%Y%m%d%H%M"
+      "outcome_datetime": "%Y%m%d%H%M",
+      "workdir_datetime": "%Y%m%d%H%M"
+    },
+    "configuration_templates": {
+      "fp_settings_folder": "/home/fp/data/fp_igad/fp_tools_runner/{run_type}/template/",
+      "fp_configuration_algorithm": "hmc_configuration_algorithm_{domain}_{run_type}_historical.json",
+      "fp_configuration_datasets": "hmc_configuration_datasets_{domain}_{run_type}_historical.json",
+      "ibf_settings_folder": "/home/fp/data/fp_igad/fp_tools_postprocessing/impact_assessment/",
+      "ibf_configuration": ["bulletin_hydro_fp_displaced_historical.json","bulletin_hydro_fp_gdp_historical.json","bulletin_hydro_fp_historical.json"]
     }
   },
   "data": {
+    "event_name": "flood_sudan_2020",
+    "obs_model": "state_gsmap-obs",
+    "frc_model": "nwp_gfs-det",
+    "domains": ["IGAD_D2"],
     "static": {
-      "discharge_threshold": "/home/fp/data/fp_igad/data/data_static/IGAD_REGION/hazard/flood_tresholds/{domain}/Q_1p25.tif"
+      "paths": {
+        "static_folder": "/home/fp/data/fp_igad/events/data_static/flood_sudan_2020/{domain}/",
+        "working_dir": "/home/fp/data/fp_igad/events/{event_name}/"
+      },
+      "hmc_flags" : {
+        "flag_phys_water_table_deep_losses": true,
+        "flag_phys_flooding": false
+      }
     },
     "dynamic": {
-      "domains": ["IGAD_D1", "IGAD_D2", "IGAD_D3", "IGAD_D4", "IGAD_D5", "IGAD_D6", "IGAD_D7", "IGAD_D8", "IGAD_D9", "IGAD_D10", "IGAD_D11", "IGAD_D12", "IGAD_D14", "IGAD_D15"],
-      "ancillary": {
-        "file_name_max": "max_fc_{domain}_{ancillary_datetime}.tif",
-        "folder": "/home/fp/data/fp_igad/run/fp_impact_forecast/{ancillary_sub_path_time}"
+      "time": {
+        "obs_warmup_hours": 48
       },
-      "thresholds": {
-        "area_km2": 1000,
-        "discharge_min": 10
+      "paths": {
+        "forcing_obs_dir": "/home/fp/bck-auc-igad/IGAD/data_dynamic/{domain}/forcings/{dset_sub_path_forcing_obs}",
+        "restart_point": "/home/fp/bck-auc-igad/IGAD/outcome/{domain}/data_state/point/{input_sub_path_time}" ,
+        "restart_grid": "/home/fp/bck-auc-igad/IGAD/outcome/{domain}/data_state/gridded/{input_sub_path_time}"
       },
       "outcome": {
         "lock_folder": "/home/fp/data/fp_igad/lock/prob/{domain}/"
