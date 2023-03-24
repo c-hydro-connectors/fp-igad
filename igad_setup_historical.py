@@ -42,8 +42,9 @@ def main():
     data_settings = read_file_json(alg_settings)
 
     # Set algorithm logging
-    os.makedirs(data_settings['data']['log']['folder'], exist_ok=True)
-    set_logging(logger_file=os.path.join(data_settings['data']['log']['folder'], data_settings['data']['log']['filename']))
+    log_folder = data_settings['data']['log']['folder'].format_map(SafeDict(event_name=data_settings["data"]["event_name"]))
+    os.makedirs(log_folder, exist_ok=True)
+    set_logging(logger_file=os.path.join(log_folder, data_settings['data']['log']['filename']))
     # -------------------------------------------------------------------------------------
 
     # -------------------------------------------------------------------------------------
@@ -167,7 +168,21 @@ def main():
         logging.info(" --> Set up of states run...DONE!")
         # -------------------------------------------------------------------------------------
 
-        # -------------------------------------------------------------------------------------
+    # -------------------------------------------------------------------------------------
+    # Setup forecast run
+    logging.info(" --> Set up of obs maps merger...")
+
+    run_settings["last_obs"] = forecast_time - datetime.timedelta(hours=1)
+    for setting_type in ["postprocessing", "smooth"]:
+        run_settings["config_" + setting_type + "_template"] =  data_settings["algorithm"]["configuration_templates"]["fp_configuration_" + setting_type]
+        with open(os.path.join(data_settings["algorithm"]["configuration_templates"]["fp_post_settings_folder"], run_settings["config_" + setting_type + "_template"]), "r") as f:
+            settings_postprocessing = json.loads(f.read().replace("{working_dir}", run_settings["paths"]["working_dir"]))
+            config_file = compile_config_postprocessing(settings_postprocessing, run_settings, setting_type)
+            launch_string = launch_string + '\npython3 $script_' + setting_type + '_file -settings_file ' + config_file + ' -time "$time_now"'
+
+    logging.info(" --> Set up of obs maps merger...DONE!")
+    # -------------------------------------------------------------------------------------
+
     # Setup impact based forecast run
     logging.info(" --> Set up of impact based forecast run...")
     launch_string = launch_string + "\n\nsource deactivate\nsource activate ${virtualenv_hyde_name}\n"
@@ -216,6 +231,17 @@ def prepare_hmc_configuration_files(run_settings, hmc_config_templates):
         settings_dset = json.loads(f.read().replace("{working_dir}", run_settings["paths"]["working_dir"]).replace("{forcing_obs_dir}", run_settings["paths"]["forcing_obs_dir"]))
         config_dataset = compile_config_dataset(settings_dset, run_settings)
     return config_algorithm, config_dataset
+# -------------------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------------------
+# Method to modify a postprocessing configuration
+def compile_config_postprocessing(settings_dset, run_settings, setting_type=None):
+    if setting_type == "postprocessing":
+        settings_dset["algorithm"]["template"]["time"]["source_datetime"] = run_settings["last_obs"].strftime("%Y%m%d%H%M")
+    out_name = os.path.join(run_settings["paths"]["working_dir"], "runner", run_settings["config_" + setting_type + "_template"].format(domain=run_settings["domain"]))
+    with open(out_name, "w") as outfile:
+        json.dump(settings_dset, outfile, indent=2)
+    return out_name
 # -------------------------------------------------------------------------------------
 
 # -------------------------------------------------------------------------------------
@@ -376,6 +402,7 @@ script_date="2021/03/25"
 
 # Get information (-u to get gmt time)
 time_now="''' + time_now.strftime("%Y-%m-%d %H:%M") + '''"
+time_now_folder="''' + time_now.strftime("%Y/%m/%d/") + '''"
 event_name=''' + event_name + '''
 
 # -----------------------------------------------------------------------------------------
@@ -392,10 +419,21 @@ virtualenv_hyde_name="fp_virtualenv_python3_hyde"
 
 script_hmc_folder=${system_library_folder}"hmc"
 script_hmc_file=${script_hmc_folder}"/apps/HMC_Model_RUN_Manager.py"
-script_bulletin_folder=$system_library_folder'bulletin/'
-script_bulletin_file=${script_bulletin_folder}'/hydro/bulletin_hydro_fp.py'
+
+script_bulletin_folder=$system_library_folder"bulletin/"
+script_bulletin_file=${script_bulletin_folder}"/hydro/bulletin_hydro_fp.py"
+
+script_postprocessing_folder=$system_library_folder"hmc/"
+script_postprocessing_file=$script_postprocessing_folder"/tools/processing_tool_datasets_merger/hmc_tool_processing_datasets_merger.py"
+script_smooth_folder=$system_library_folder"fp_tools/"
+script_smooth_file=script_smooth_folder"/igad_smooth_maps.py"
 
 runner_folder="${fp_folder}/fp_tools_runner/"
+
+# Map merging information
+time_now_file="${time_now//[!0-9]/}"
+out_folder_step="''' + working_path + '''/archive/fp_impact_forecast/nwp_gfs-det/${time_now_folder}/0000/HMC/"
+ancillary_folder_step="''' + working_path + '''/run/fp_impact_forecast/${time_now_folder}/"
 # -----------------------------------------------------------------------------------------
 # Activate virtualenv
 export PATH="${virtualenv_folder}/bin":$PATH
@@ -405,6 +443,31 @@ source activate $virtualenv_hmc_name
 export PYTHONPATH="${PYTHONPATH}:$script_hmc_folder"
 
 ''' + launch_string + '''
+
+mkdir -p $out_folder_step
+
+# Merge gridded alert levels 
+gdal_merge.py -o $out_folder_step/group2_mosaic_alert_level.tif \
+$ancillary_folder_step/alert_fc_IGAD_D3_${time_now_file}.tif \
+$ancillary_folder_step/alert_fc_IGAD_D4_${time_now_file}.tif \
+$ancillary_folder_step/alert_fc_IGAD_D5_${time_now_file}.tif \
+$ancillary_folder_step/alert_fc_IGAD_D6_${time_now_file}.tif \
+$ancillary_folder_step/alert_fc_IGAD_D7_${time_now_file}.tif \
+$ancillary_folder_step/alert_fc_IGAD_D8_${time_now_file}.tif \
+$ancillary_folder_step/alert_fc_IGAD_D9_${time_now_file}.tif \
+$ancillary_folder_step/alert_fc_IGAD_D10_${time_now_file}.tif \
+$ancillary_folder_step/alert_fc_IGAD_D11_${time_now_file}.tif \
+$ancillary_folder_step/alert_fc_IGAD_D12_${time_now_file}.tif \
+$ancillary_folder_step/alert_fc_IGAD_D14_${time_now_file}.tif \
+-ul_lr 28.6241389 -14.9862778 51.4168056 15.5330833 -a_nodata 0 -ot Int16 || true
+
+gdal_merge.py -o $out_folder_step/group1_mosaic_alert_level.tif \
+$ancillary_folder_step/alert_fc_IGAD_D1_${time_now_file}.tif \
+$ancillary_folder_step/alert_fc_IGAD_D2_${time_now_file}.tif \
+-ul_lr 21.7325278 -4.0103056 39.7960000 23.3750278 -a_nodata 0 -ot Int16 || true
+
+gdalwarp -srcnodata 0 $ancillary_folder_step/alert_fc_IGAD_D15_${time_now_file}.tif $out_folder_step/group4_mosaic_alert_level.tif || true
+    
 echo " ==> "$script_name" (Version: "$script_version" Release_Date: "$script_date")"
 echo " ==> ... END"
 echo " ==> Bye, Bye"

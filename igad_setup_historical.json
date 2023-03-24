@@ -23,6 +23,9 @@
       "fp_settings_folder": "/home/fp/data/fp_igad/fp_tools_runner/{run_type}/template/",
       "fp_configuration_algorithm": "hmc_configuration_algorithm_{domain}_{run_type}_historical.json",
       "fp_configuration_datasets": "hmc_configuration_datasets_{domain}_{run_type}_historical.json",
+      "fp_post_settings_folder":"/home/fp/data/fp_igad/fp_tools_postprocessing/storage/",
+      "fp_configuration_postprocessing": "igad_postprocessing_merge_gridded_output_historical.json",
+      "fp_configuration_smooth": "igad_smooth_maps_historical.json",
       "ibf_settings_folder": "/home/fp/data/fp_igad/fp_tools_postprocessing/impact_assessment/",
       "ibf_configuration": ["bulletin_hydro_fp_displaced_historical.json","bulletin_hydro_fp_gdp_historical.json","bulletin_hydro_fp_historical.json"]
     }
@@ -50,14 +53,11 @@
         "forcing_obs_dir": "/home/fp/bck-auc-igad/IGAD/data_dynamic/{domain}/forcings/{dset_sub_path_forcing_obs}",
         "restart_point": "/home/fp/bck-auc-igad/IGAD/outcome/{domain}/data_state/point/{input_sub_path_time}" ,
         "restart_grid": "/home/fp/bck-auc-igad/IGAD/outcome/{domain}/data_state/gridded/{input_sub_path_time}"
-      },
-      "outcome": {
-        "lock_folder": "/home/fp/data/fp_igad/lock/prob/{domain}/"
-    }
+      }
     },
     "log": {
       "filename": "fp_impact_based_forecast.txt",
-      "folder": "/home/fp/data/fp_igad/log/postprocessing/"
+      "folder": "/home/fp/data/fp_igad/events/{event_name}/log/postprocessing/"
     }
   }
 }
